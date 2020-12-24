@@ -578,7 +578,7 @@ if [ "$option" == "install" ]; then
         eval "${_DOWNLOADER}"  # execute downloadhelper command
         if [ "$(find "$DLDIR" -printf . | wc -c)" -gt 1 ]; then
         
-          # When Aria2c downloads a file which checksum doesn't match, it won't rename the file to its actual name
+          # When Aria2c downloads a file which checksum don't match, it won't rename the file to its actual name
           # letting it preserve .aria2 file extension, which also indicates when a file hasn't been completely downloaded.
           
           # Delete incomplete/corrupted downloaded files, if any (Not recursive)
