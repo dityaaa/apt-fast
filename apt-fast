@@ -577,10 +577,20 @@ if [ "$option" == "install" ]; then
 
         eval "${_DOWNLOADER}"  # execute downloadhelper command
         if [ "$(find "$DLDIR" -printf . | wc -c)" -gt 1 ]; then
-          # Delete failed downloads
-          for f in *.aria2; do
-            [ -ne "*.aria2" ] && rm "${f%.*}" "$f"
-          done
+        
+          # When Aria2c downloads a file which checksum doesn't match, it won't rename the file to its actual name
+          # letting it preserve .aria2 file extension, which also indicates when a file hasn't been completely downloaded.
+          
+          # Delete incomplete/corrupted downloaded files, if any (Not recursive)
+          if [ "$(find "$DLDIR" -maxdepth '1' -type 'f' -name '*.aria2' -printf '.' | wc -c)" -gt 0 ]; then
+            for x in *.aria2; do
+              rm -fv "$x" "${x%.*}.deb" > /dev/null 2>&1
+            done
+            # Could have used find instead, but it'd have taken extra steps going that way
+            #  while read -r file; do
+            #    rm $(printf '%s %s' "$file" "$(printf '%s' "$file" | sed -E 's/\.aria2$/.deb/g')")
+            #  done <<< $(find '.''' -maxdepth '1' -type 'f' -name '*.aria2' | sort -u)
+          fi
           # Move all packages to the apt install directory by force to ensure
           # already existing debs which may be incomplete are replaced
           find . -type f \( -name '*.deb' -o -name '*.ddeb' \) -execdir mv -ft "$APTCACHE" {} \+
